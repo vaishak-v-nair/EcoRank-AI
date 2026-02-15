@@ -33,6 +33,7 @@ recycling-manager-selection/
 - Database ranking maturity:
   - Enforced score bounds (0-100) via check constraints and triggers.
   - `evaluations -> candidates` foreign key with indexed query paths.
+  - Dedicated `rankings` table auto-refreshed from evaluation triggers.
   - `vw_candidate_rankings` computes rank from each candidate's latest evaluation.
 - Backend hardening:
   - `helmet` + `compression` middleware enabled.

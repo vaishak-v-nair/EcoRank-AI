@@ -12,7 +12,7 @@ Node.js + Express backend with MySQL persistence, deterministic Faker seed gener
 - Rate limiting on `POST /api/candidates/:id/evaluate`
 
 ## Folder Map
-- `db/` - schema, views, triggers, and generated seed SQL
+- `db/` - schema, views, triggers (including rankings auto-refresh), and generated seed SQL
 - `generators/` - Faker-driven candidate + evaluation seed generator
 - `ai/` - prompt assets, evaluator, and mock AI logic
 - `repositories/` - raw database access layer
@@ -53,6 +53,7 @@ Node.js + Express backend with MySQL persistence, deterministic Faker seed gener
 
 ## Notes
 - Ranking is calculated from `vw_candidate_rankings` using each candidate's latest evaluation.
+- `rankings` table is auto-updated by `sp_refresh_rankings` via evaluation insert/update/delete triggers.
 - Score constraints are enforced by both schema checks and triggers.
 - `AI_PROVIDER=mock` is the default for deterministic local testing.
 - `/health` includes database reachability and returns `503` when DB is down.

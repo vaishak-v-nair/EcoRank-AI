@@ -38,16 +38,18 @@ SELECT
   c.location_city,
   c.location_state,
   c.years_experience,
-  le.crisis_score,
-  le.sustainability_score,
-  le.motivation_score,
-  le.overall_score,
-  le.evaluator_version,
-  le.evaluated_at,
-  DENSE_RANK() OVER (ORDER BY le.overall_score DESC, c.years_experience DESC, c.id ASC) AS rank_position
+  e.crisis_score,
+  e.sustainability_score,
+  e.motivation_score,
+  r.overall_score,
+  e.evaluator_version,
+  e.evaluated_at,
+  r.rank_position
 FROM candidates c
-JOIN vw_candidate_latest_evaluation le
-  ON le.candidate_id = c.id;
+JOIN rankings r
+  ON r.candidate_id = c.id
+JOIN evaluations e
+  ON e.id = r.latest_evaluation_id;
 
 DROP VIEW IF EXISTS vw_skill_heatmap_top10;
 CREATE VIEW vw_skill_heatmap_top10 AS

@@ -1,5 +1,21 @@
-import { Alert, Badge, Button, Grid, Group, Loader, Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
-import { IconRefresh, IconSparkles } from '@tabler/icons-react';
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  Divider,
+  Grid,
+  Group,
+  Loader,
+  Paper,
+  SimpleGrid,
+  Skeleton,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title
+} from '@mantine/core';
+import { IconBolt, IconRefresh, IconRosetteDiscountCheck, IconSparkles, IconTargetArrow } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { CandidateCard } from '../components/CandidateCard/CandidateCard';
 import { LeaderboardTable } from '../components/Leaderboard/LeaderboardTable';
@@ -13,9 +29,18 @@ export function Dashboard() {
 
   if (loading) {
     return (
-      <Group justify="center" py="xl">
-        <Loader size="lg" />
-      </Group>
+      <Stack gap="md">
+        <Skeleton height={120} radius="lg" />
+        <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }}>
+          <Skeleton height={90} radius="lg" />
+          <Skeleton height={90} radius="lg" />
+          <Skeleton height={90} radius="lg" />
+          <Skeleton height={90} radius="lg" />
+        </SimpleGrid>
+        <Group justify="center" py="lg">
+          <Loader size="lg" />
+        </Group>
+      </Stack>
     );
   }
 
@@ -72,24 +97,45 @@ export function Dashboard() {
 
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md">
         <Paper withBorder radius="lg" p="md" className="metric-chip stagger-pop">
-          <Text size="xs" c="dimmed" tt="uppercase">
-            Top-10 Avg Score
-          </Text>
-          <Title order={3}>{averageTop10.toFixed(1)}</Title>
+          <Group justify="space-between" align="center">
+            <div>
+              <Text size="xs" c="dimmed" tt="uppercase">
+                Top-10 Avg Score
+              </Text>
+              <Title order={3}>{averageTop10.toFixed(1)}</Title>
+            </div>
+            <ThemeIcon size="lg" radius="xl" color="forest" variant="light">
+              <IconTargetArrow size={18} />
+            </ThemeIcon>
+          </Group>
         </Paper>
         <Paper withBorder radius="lg" p="md" className="metric-chip stagger-pop">
-          <Text size="xs" c="dimmed" tt="uppercase">
-            Elite Performer Rate
-          </Text>
-          <Title order={3}>{eliteRate.toFixed(1)}%</Title>
+          <Group justify="space-between" align="center">
+            <div>
+              <Text size="xs" c="dimmed" tt="uppercase">
+                Elite Performer Rate
+              </Text>
+              <Title order={3}>{eliteRate.toFixed(1)}%</Title>
+            </div>
+            <ThemeIcon size="lg" radius="xl" color="copper" variant="light">
+              <IconRosetteDiscountCheck size={18} />
+            </ThemeIcon>
+          </Group>
         </Paper>
         <Paper withBorder radius="lg" p="md" className="metric-chip stagger-pop">
-          <Text size="xs" c="dimmed" tt="uppercase">
-            Evaluated Candidates
-          </Text>
-          <Title order={3}>
-            {evaluatedCount}/{data.candidates.length}
-          </Title>
+          <Group justify="space-between" align="center">
+            <div>
+              <Text size="xs" c="dimmed" tt="uppercase">
+                Evaluated Candidates
+              </Text>
+              <Title order={3}>
+                {evaluatedCount}/{data.candidates.length}
+              </Title>
+            </div>
+            <ThemeIcon size="lg" radius="xl" color="forest" variant="light">
+              <IconBolt size={18} />
+            </ThemeIcon>
+          </Group>
         </Paper>
         <Paper withBorder radius="lg" p="md" className="metric-chip stagger-pop">
           <Group justify="space-between">
@@ -112,12 +158,42 @@ export function Dashboard() {
           />
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 4 }}>
-          <SkillHeatmap cells={data.heatmap} />
+          <Stack>
+            <SkillHeatmap cells={data.heatmap} />
+            <Card withBorder radius="lg" p="md">
+              <Group justify="space-between">
+                <Text fw={700}>Scoring Weights</Text>
+                <Badge color="forest" variant="light">
+                  AI rubric
+                </Badge>
+              </Group>
+              <Divider my="sm" />
+              <Stack gap={8}>
+                <Group justify="space-between">
+                  <Text size="sm">Crisis Management</Text>
+                  <Badge color="forest">40%</Badge>
+                </Group>
+                <Group justify="space-between">
+                  <Text size="sm">Sustainability</Text>
+                  <Badge color="forest">35%</Badge>
+                </Group>
+                <Group justify="space-between">
+                  <Text size="sm">Team Motivation</Text>
+                  <Badge color="forest">25%</Badge>
+                </Group>
+              </Stack>
+            </Card>
+          </Stack>
         </Grid.Col>
       </Grid>
 
       <Stack gap="sm">
-        <Title order={3}>Candidate Cards</Title>
+        <Group justify="space-between" align="center">
+          <Title order={3}>Candidate Cards</Title>
+          <Badge variant="light" color="forest">
+            Click any card for deep profile
+          </Badge>
+        </Group>
         <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
           {data.candidates.map((candidate) => (
             <CandidateCard

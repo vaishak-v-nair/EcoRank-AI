@@ -92,3 +92,27 @@ CREATE TABLE IF NOT EXISTS evaluations (
 CREATE INDEX idx_evaluations_candidate_date ON evaluations (candidate_id, evaluated_at DESC);
 CREATE INDEX idx_evaluations_overall ON evaluations (overall_score DESC, evaluated_at DESC);
 CREATE INDEX idx_evaluations_version ON evaluations (evaluator_version);
+
+CREATE TABLE IF NOT EXISTS rankings (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  candidate_id BIGINT UNSIGNED NOT NULL,
+  latest_evaluation_id BIGINT UNSIGNED NOT NULL,
+  rank_position INT UNSIGNED NOT NULL,
+  overall_score DECIMAL(5,2) NOT NULL,
+  refreshed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT uq_rankings_candidate UNIQUE (candidate_id),
+  CONSTRAINT uq_rankings_position UNIQUE (rank_position),
+  CONSTRAINT fk_rankings_candidate
+    FOREIGN KEY (candidate_id)
+    REFERENCES candidates(id)
+    ON DELETE CASCADE,
+  CONSTRAINT fk_rankings_evaluation
+    FOREIGN KEY (latest_evaluation_id)
+    REFERENCES evaluations(id)
+    ON DELETE CASCADE,
+  CONSTRAINT chk_rankings_position CHECK (rank_position >= 1),
+  CONSTRAINT chk_rankings_overall_score CHECK (overall_score BETWEEN 0 AND 100)
+) ENGINE=InnoDB;
+
+CREATE INDEX idx_rankings_position ON rankings (rank_position);
+CREATE INDEX idx_rankings_overall ON rankings (overall_score DESC);

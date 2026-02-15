@@ -201,6 +201,7 @@ function main() {
     'USE recycling_manager_selection;',
     '',
     'SET FOREIGN_KEY_CHECKS = 0;',
+    'TRUNCATE TABLE rankings;',
     'TRUNCATE TABLE evaluations;',
     'TRUNCATE TABLE candidate_skills;',
     'TRUNCATE TABLE skills;',

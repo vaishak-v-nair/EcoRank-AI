@@ -6,12 +6,18 @@ import {
   Group,
   Loader,
   Paper,
+  Progress,
+  SegmentedControl,
+  SimpleGrid,
   Stack,
   Table,
+  Tabs,
   Text,
+  ThemeIcon,
+  Timeline,
   Title
 } from '@mantine/core';
-import { IconArrowLeft, IconPlayerPlay } from '@tabler/icons-react';
+import { IconArrowLeft, IconHeartHandshake, IconLeaf, IconPlayerPlay, IconShieldCheck } from '@tabler/icons-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CandidateCard } from '../components/CandidateCard/CandidateCard';
 import { useCandidateDetail } from '../hooks/useCandidates';
@@ -24,6 +30,7 @@ export function CandidateDetail() {
   const { data, loading, error, refresh } = useCandidateDetail(Number.isNaN(candidateId) ? null : candidateId);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [evaluationError, setEvaluationError] = useState<string | null>(null);
+  const latest = data?.evaluations?.[0] || null;
 
   const triggerEvaluation = async () => {
     if (Number.isNaN(candidateId)) {
@@ -96,6 +103,49 @@ export function CandidateDetail() {
 
       <CandidateCard candidate={data.candidate} onOpenProfile={() => undefined} />
 
+      {latest ? (
+        <Paper withBorder radius="lg" p="md" style={{ borderColor: '#dbe7e1', background: 'rgba(255,255,255,0.95)' }}>
+          <Group justify="space-between" mb="sm">
+            <Title order={4}>Latest Score Breakdown</Title>
+            <Badge color="forest" variant="light">
+              v{latest.evaluator_version}
+            </Badge>
+          </Group>
+          <SimpleGrid cols={{ base: 1, md: 3 }}>
+            <Stack gap={6}>
+              <Group justify="space-between">
+                <Group gap={6}>
+                  <ThemeIcon color="forest" variant="light"><IconShieldCheck size={14} /></ThemeIcon>
+                  <Text size="sm">Crisis</Text>
+                </Group>
+                <Text fw={700}>{latest.crisis_score}</Text>
+              </Group>
+              <Progress value={latest.crisis_score} color="forest" radius="xl" />
+            </Stack>
+            <Stack gap={6}>
+              <Group justify="space-between">
+                <Group gap={6}>
+                  <ThemeIcon color="forest" variant="light"><IconLeaf size={14} /></ThemeIcon>
+                  <Text size="sm">Sustainability</Text>
+                </Group>
+                <Text fw={700}>{latest.sustainability_score}</Text>
+              </Group>
+              <Progress value={latest.sustainability_score} color="forest" radius="xl" />
+            </Stack>
+            <Stack gap={6}>
+              <Group justify="space-between">
+                <Group gap={6}>
+                  <ThemeIcon color="forest" variant="light"><IconHeartHandshake size={14} /></ThemeIcon>
+                  <Text size="sm">Motivation</Text>
+                </Group>
+                <Text fw={700}>{latest.motivation_score}</Text>
+              </Group>
+              <Progress value={latest.motivation_score} color="forest" radius="xl" />
+            </Stack>
+          </SimpleGrid>
+        </Paper>
+      ) : null}
+
       <Paper
         withBorder
         radius="lg"
@@ -105,39 +155,56 @@ export function CandidateDetail() {
           background: 'rgba(255, 255, 255, 0.93)'
         }}
       >
-        <Group justify="space-between" mb="sm">
-          <Title order={4}>Evaluation History</Title>
-          <Badge color="forest" variant="light">
-            AI evaluation timeline
-          </Badge>
-        </Group>
+        <Tabs defaultValue="table" variant="outline" radius="md">
+          <Tabs.List>
+            <Tabs.Tab value="table">Table View</Tabs.Tab>
+            <Tabs.Tab value="timeline">Timeline View</Tabs.Tab>
+          </Tabs.List>
 
-        <Table verticalSpacing="sm" horizontalSpacing="sm">
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Date</Table.Th>
-              <Table.Th>Version</Table.Th>
-              <Table.Th>Crisis</Table.Th>
-              <Table.Th>Sustainability</Table.Th>
-              <Table.Th>Motivation</Table.Th>
-              <Table.Th>Overall</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {data.evaluations.map((evaluation) => (
-              <Table.Tr key={evaluation.id}>
-                <Table.Td>{new Date(evaluation.evaluated_at).toLocaleString()}</Table.Td>
-                <Table.Td>{evaluation.evaluator_version}</Table.Td>
-                <Table.Td>{evaluation.crisis_score}</Table.Td>
-                <Table.Td>{evaluation.sustainability_score}</Table.Td>
-                <Table.Td>{evaluation.motivation_score}</Table.Td>
-                <Table.Td>
-                  <Text fw={700}>{evaluation.overall_score.toFixed(1)}</Text>
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
+          <Tabs.Panel value="table" pt="md">
+            <Table verticalSpacing="sm" horizontalSpacing="sm">
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Date</Table.Th>
+                  <Table.Th>Version</Table.Th>
+                  <Table.Th>Crisis</Table.Th>
+                  <Table.Th>Sustainability</Table.Th>
+                  <Table.Th>Motivation</Table.Th>
+                  <Table.Th>Overall</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {data.evaluations.map((evaluation) => (
+                  <Table.Tr key={evaluation.id}>
+                    <Table.Td>{new Date(evaluation.evaluated_at).toLocaleString()}</Table.Td>
+                    <Table.Td>{evaluation.evaluator_version}</Table.Td>
+                    <Table.Td>{evaluation.crisis_score}</Table.Td>
+                    <Table.Td>{evaluation.sustainability_score}</Table.Td>
+                    <Table.Td>{evaluation.motivation_score}</Table.Td>
+                    <Table.Td>
+                      <Text fw={700}>{evaluation.overall_score.toFixed(1)}</Text>
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          </Tabs.Panel>
+
+          <Tabs.Panel value="timeline" pt="md">
+            <Timeline active={0} bulletSize={20} lineWidth={2}>
+              {data.evaluations.slice(0, 6).map((evaluation) => (
+                <Timeline.Item key={evaluation.id} title={`Overall ${evaluation.overall_score.toFixed(1)}`}>
+                  <Text size="sm" c="dimmed">{new Date(evaluation.evaluated_at).toLocaleString()}</Text>
+                  <Group gap={8} mt={6}>
+                    <Badge color="forest" variant="light">C {evaluation.crisis_score}</Badge>
+                    <Badge color="forest" variant="light">S {evaluation.sustainability_score}</Badge>
+                    <Badge color="forest" variant="light">M {evaluation.motivation_score}</Badge>
+                  </Group>
+                </Timeline.Item>
+              ))}
+            </Timeline>
+          </Tabs.Panel>
+        </Tabs>
       </Paper>
 
       <Paper
