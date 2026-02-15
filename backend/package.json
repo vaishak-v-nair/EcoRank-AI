@@ -1,0 +1,21 @@
+{
+  "name": "recycling-manager-selection-backend",
+  "version": "1.0.0",
+  "description": "Backend API and AI evaluation engine for recycling manager candidate selection",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "generate:seed": "node generators/fakerGenerator.js"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^9.6.0",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "helmet": "^8.1.0",
+    "mysql2": "^3.15.1"
+  }
+}
