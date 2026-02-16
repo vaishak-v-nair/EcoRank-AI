@@ -1,7 +1,7 @@
 # Backend: recycling-manager-selection
 
 ## Overview
-Node.js + Express backend with MySQL persistence, deterministic Faker seed generation, and an AI evaluation abstraction layer (mock + optional OpenAI mode).
+Node.js + Express backend with MySQL persistence, deterministic Faker seed generation, and an AI evaluation abstraction layer (`mock`, `openai`, `openrouter`).
 
 ## Runtime Hardening
 - Strict validation for route params/query/body input
@@ -57,4 +57,4 @@ Node.js + Express backend with MySQL persistence, deterministic Faker seed gener
 - Score constraints are enforced by both schema checks and triggers.
 - `AI_PROVIDER=mock` is the default for deterministic local testing.
 - For OpenRouter, set `AI_PROVIDER=openrouter` and provide `OPENAI_API_KEY` (or `OPENROUTER_API_KEY`).
-- `/health` includes database reachability and returns `503` when DB is down.
+- `/health` includes database reachability and reports `degraded` when DB is down but mock fallback is enabled.

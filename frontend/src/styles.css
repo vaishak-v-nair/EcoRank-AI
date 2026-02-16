@@ -20,6 +20,13 @@
   --panel-hero-bg: linear-gradient(135deg, rgba(70, 137, 95, 0.11), rgba(116, 134, 154, 0.14)),
     rgba(255, 255, 255, 0.9);
   --row-top-bg: rgba(83, 155, 111, 0.08);
+  --error-panel-border: #7b2f3a;
+  --error-panel-bg: linear-gradient(135deg, rgba(149, 55, 73, 0.24), rgba(78, 34, 45, 0.26)),
+    rgba(41, 24, 29, 0.94);
+  --error-panel-title: #ffd7dc;
+  --error-panel-text: #ffe7ea;
+  --error-hint-border: #4d5d67;
+  --error-hint-bg: rgba(19, 34, 44, 0.72);
   --hero-gradient: radial-gradient(circle at 20% 12%, rgba(83, 155, 111, 0.20), transparent 42%),
     radial-gradient(circle at 90% 0%, rgba(124, 141, 156, 0.16), transparent 40%),
     linear-gradient(145deg, #f8fafb 0%, #eef2f5 100%);
@@ -107,6 +114,13 @@ body {
   --panel-hero-bg: linear-gradient(135deg, rgba(56, 126, 88, 0.26), rgba(91, 113, 136, 0.28)),
     rgba(15, 23, 30, 0.9);
   --row-top-bg: rgba(83, 155, 111, 0.18);
+  --error-panel-border: #6c2e3a;
+  --error-panel-bg: linear-gradient(135deg, rgba(117, 38, 57, 0.34), rgba(54, 24, 39, 0.42)),
+    rgba(22, 18, 25, 0.95);
+  --error-panel-title: #ffd5da;
+  --error-panel-text: #ffe1e5;
+  --error-hint-border: #41515e;
+  --error-hint-bg: rgba(13, 26, 36, 0.84);
   --hero-gradient: radial-gradient(circle at 18% 8%, rgba(70, 137, 95, 0.24), transparent 38%),
     radial-gradient(circle at 88% 0%, rgba(95, 111, 130, 0.24), transparent 36%),
     linear-gradient(145deg, #121920 0%, #10161b 100%);
@@ -139,6 +153,24 @@ body {
 .surface-hero {
   background: var(--panel-hero-bg);
   border-color: var(--panel-border);
+}
+
+.error-panel {
+  background: var(--error-panel-bg);
+  border-color: var(--error-panel-border);
+}
+
+.error-panel-title {
+  color: var(--error-panel-title);
+}
+
+.error-panel-text {
+  color: var(--error-panel-text);
+}
+
+.error-hint {
+  background: var(--error-hint-bg);
+  border-color: var(--error-hint-border);
 }
 
 @keyframes page-reveal {

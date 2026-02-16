@@ -1,293 +1,122 @@
-# ♻️ EcoRank AI
+# recycling-manager-selection
 
-**AI-Powered Candidate Evaluation & Ranking Platform**
+End-to-end candidate selection platform for recycling manager roles with a MySQL-backed ranking model, AI-assisted evaluation workflow, and a React dashboard.
 
-EcoRank AI is a full-stack candidate evaluation system that ranks applicants for a recycling production line manager role using structured database design, AI-driven scoring, and a decision-focused dashboard.
+## Project Structure
 
-This project demonstrates applied AI systems engineering: controlled model evaluation, deterministic ranking logic, resilient backend architecture, and production-ready frontend UX.
-
----
-
-## 🚀 Overview
-
-EcoRank AI transforms raw candidate profiles into structured evaluation signals and ranked insights.
-
-**System Flow**
-
-Candidate Data
-→ AI Evaluation (Crisis • Sustainability • Motivation)
-→ Weighted Score Calculation
-→ Ranking Engine
-→ Dashboard Visualization
-
-The system is resilient by design. If MySQL is unavailable, deterministic mock evaluation ensures the application remains usable instead of failing.
-
----
-
-## 🧠 Core Capabilities
-
-### 1️⃣ Structured AI Evaluation
-
-Candidates are evaluated across three dimensions:
-
-* **Crisis Management** (40%)
-* **Sustainability Knowledge** (35%)
-* **Team Motivation** (25%)
-
-Features:
-
-* Weighted scoring model
-* Score normalization and clamping (0–100)
-* Structured JSON output validation
-* Provider abstraction (`mock`, `openai`, `openrouter`)
-* Graceful fallback handling
-
-Evaluation logic is centralized in `backend/ai/evaluator.js`.
-
----
-
-### 2️⃣ Deterministic Ranking Engine
-
-* Backend-driven sorting and leaderboard generation
-* Rank positions exposed as `rank_position`
-* Top-N selection for dashboard
-* Metrics computed from ranked dataset:
-
-  * Top-10 average score
-  * Elite rate
-  * Total evaluated count
-
-Ranking logic is separated from AI scoring and UI layers.
-
----
-
-### 3️⃣ Resilient Backend Architecture
-
-* Express server with layered architecture:
-
-  * Controllers
-  * Services
-  * Repositories / data access
-* Centralized error normalization
-* Health check endpoint
-* Rate limiting
-* Cache invalidation strategy
-* Deterministic mock fallback if MySQL unavailable
-
-This ensures development and demo reliability.
-
----
-
-### 4️⃣ Polished Dashboard (React + Mantine)
-
-* Leaderboard (Top 10 candidates)
-* Candidate profile cards
-* Skill heatmap visualization
-* Theme-aware design
-* Dark-mode safe typography and surfaces
-* Improved error parsing & recovery UX
-
-Frontend prioritizes clarity and decision usability.
-
----
-
-## 🗂 Project Structure
-
-```
-EcoRank-AI/
-│
-├── backend/
-│   ├── controllers/
-│   ├── services/
-│   ├── repositories/
-│   ├── ai/
-│   ├── middleware/
-│   ├── config/
-│   └── server.js
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   ├── hooks/
-│   │   ├── types/
-│   │   └── theme/
-│   └── vite.config.ts
-│
-├── .env.example
-└── README.md
+```text
+recycling-manager-selection/
+|-- backend/
+|   |-- ai/
+|   |-- config/
+|   |-- db/
+|   |-- generators/
+|   |-- repositories/
+|   |-- services/
+|   `-- src/
+|-- frontend/
+|   |-- public/
+|   `-- src/
+|-- docs/
+|-- .gitignore
+|-- package.json
+`-- README.md
 ```
 
----
+## Architecture Decisions
 
-## 🛠 Tech Stack
+- Layered backend design:
+  - `repositories/` handles raw SQL and row mapping.
+  - `services/` contains business logic (evaluation and ranking).
+  - `src/controllers + src/routes` expose HTTP endpoints.
+  - `src/utils` and `src/middleware` enforce validation, request IDs, and structured errors.
+- Database ranking maturity:
+  - Enforced score bounds (0-100) via check constraints and triggers.
+  - `evaluations -> candidates` foreign key with indexed query paths.
+  - Dedicated `rankings` table auto-refreshed from evaluation triggers.
+  - `vw_candidate_rankings` computes rank from each candidate's latest evaluation.
+- Backend hardening:
+  - `helmet` + `compression` middleware enabled.
+  - Database outage errors mapped to `503 DATABASE_UNAVAILABLE`.
+  - Lightweight rate limiting on evaluation endpoint.
+  - In-memory caching for dashboard/leaderboard/heatmap with invalidation on new evaluations.
+- AI abstraction:
+  - Prompt assets stored in `backend/ai/prompts/`.
+  - `backend/ai/evaluator.js` normalizes provider output for `mock`, `openai`, and `openrouter`.
+  - `mockAI.js` supports deterministic local runs without external dependency.
+- Frontend organization:
+  - `components/` for presentation.
+  - `services/` for API access.
+  - `hooks/` for fetch lifecycle.
+  - `utils/` for score and heatmap helpers.
 
-### Backend
+## Prerequisites
 
-* Node.js
-* Express
-* MySQL
-* OpenRouter API
-* OpenAI-compatible interface
-* Faker.js (candidate generation)
+- Node.js 20+
+- npm 10+
+- MySQL 8.0+
 
-### Frontend
+## 1. Database Setup and Seed
 
-* React
-* Vite
-* Mantine UI
-* TypeScript
+1. Create schema/tables:
+   - `mysql -u <user> -p < backend/db/schema.sql`
+2. Create views:
+   - `mysql -u <user> -p < backend/db/views.sql`
+3. Create triggers:
+   - `mysql -u <user> -p < backend/db/triggers.sql`
+4. Install backend dependencies and generate seed SQL:
+   - `npm install --workspace backend`
+   - `npm run generate:seed --workspace backend`
+5. Load seed data:
+   - `mysql -u <user> -p < backend/db/seed.sql`
 
----
+## 2. Run Backend Services
 
-## ⚙️ Local Development
+1. Configure environment:
+   - `cp backend/.env.example backend/.env` (or create manually on Windows)
+   - Update DB credentials and AI provider key.
+2. Start API:
+   - `npm run dev --workspace backend`
+3. Health check:
+   - `GET http://localhost:4000/health`
 
-### 1️⃣ Clone Repository
+## 3. Run Frontend
 
-```bash
-git clone https://github.com/vaishak-v-nair/EcoRank-AI.git
-cd EcoRank-AI
-```
+1. Install frontend dependencies:
+   - `npm install --workspace frontend`
+2. Start Vite app:
+   - `npm run dev --workspace frontend`
+3. Open:
+   - `http://localhost:5173`
 
----
+## Quick Start (Recommended)
 
-### 2️⃣ Configure Environment
+From the repository root, run both backend and frontend together:
 
-Create a `.env` file in the backend directory:
+- `npm run dev`
 
-```env
-PORT=5000
+This uses a shared process runner so both services restart together during development.
 
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=ecorank
+## Key Backend Endpoints
 
-AI_PROVIDER=openrouter
-OPENROUTER_API_KEY=your_key
-MODEL_NAME=openai/gpt-4o-mini
-```
+- `GET /api/dashboard`
+- `GET /api/leaderboard?limit=10&sortBy=rank&direction=asc`
+- `GET /api/heatmap?top=10`
+- `GET /api/candidates`
+- `GET /api/candidates/:id`
+- `POST /api/candidates/:id/evaluate`
 
-`.env` is intentionally gitignored.
+## Documentation Artifacts
 
----
+- Prompt specs: `docs/AI_Prompts.md`
+- ERD image: `docs/ERD.png`
+- Dashboard capture placeholder: `docs/Dashboard_Screenshot.png`
+- Figma workflow note: `docs/FIGMA_MCP_NOTES.md`
 
-### 3️⃣ Install Dependencies
+## Notes
 
-```bash
-npm install
-```
-
-If backend and frontend are separated:
-
-```bash
-cd backend && npm install
-cd ../frontend && npm install
-```
-
----
-
-### 4️⃣ Run Full Stack
-
-```bash
-npm run dev
-```
-
-This starts:
-
-* Express backend
-* React frontend
-* Development proxy
-
----
-
-## 🧪 Health Check
-
-```
-GET /health
-```
-
-Returns system readiness status.
-
-If database connection fails, the application switches to deterministic mock evaluation mode.
-
----
-
-## 🗃 Database Design
-
-Core tables:
-
-* `candidates`
-* `evaluations`
-* `rankings`
-
-Features:
-
-* Foreign key constraints
-* Indexed columns for performance
-* Weighted score aggregation
-* Deterministic ranking derivation
-
-40 realistic candidate profiles generated using Faker.js.
-
----
-
-## 🤖 AI Prompting Strategy
-
-Each evaluation prompt:
-
-* Defines explicit rubric
-* Enforces scoring range (0–100)
-* Requests structured JSON output
-* Separates reasoning from scoring
-* Prevents hallucinated assumptions
-
-Example response schema:
-
-```json
-{
-  "score": 84,
-  "justification": "Demonstrates strong operational crisis leadership and waste management optimization experience."
-}
-```
-
-Provider abstraction allows switching between OpenRouter and OpenAI seamlessly.
-
----
-
-## 📊 Evaluation Coverage
-
-| Area            | Implementation                    |
-| --------------- | --------------------------------- |
-| Database Design | Structured schema + indexing      |
-| AI Prompting    | Weighted rubric-driven scoring    |
-| Ranking System  | Backend sorting + rank positions  |
-| Dashboard       | Decision-focused UI               |
-| Reliability     | Graceful fallback + health checks |
-
----
-
-## 📌 Design Philosophy
-
-EcoRank AI was built as a minimal, production-ready decision engine rather than a demo.
-
-Key principles:
-
-* Separate AI from business logic
-* Enforce structured outputs
-* Fail gracefully
-* Keep ranking deterministic
-* Maintain usability under failure conditions
-
----
-
-## 👤 Author
-
-**VAISHAK V NAIR**
-
-B.Tech Computer Science
-
-AI/ML Engineer | Full-Stack Developer | Applied AI Systems Builder | LLM & Generative AI Explorer
-
-GitHub: [https://github.com/vaishak-v-nair](https://github.com/vaishak-v-nair)
+- The seed pipeline generates 40 realistic candidate records with role history, location, education, skills, and initial evaluation data.
+- The frontend dashboard includes:
+  - Sortable Top 10 leaderboard.
+  - Skill heatmap for top-ranked candidates.
+  - Candidate cards with detail navigation and share action.

@@ -62,24 +62,20 @@ export function Dashboard() {
           withBorder
           radius="lg"
           p="lg"
-          style={{
-            borderColor: '#4c2b2f',
-            background:
-              'linear-gradient(135deg, rgba(129, 39, 56, 0.28), rgba(33, 18, 34, 0.45)), rgba(24, 20, 26, 0.9)'
-          }}
+          className="error-panel"
         >
           <Group gap="sm" mb="xs">
             <ThemeIcon radius="xl" size="lg" color="red" variant="filled">
               <IconPlugConnectedX size={18} />
             </ThemeIcon>
-            <Title order={3} c="#ffd4d8">
+            <Title order={3} className="error-panel-title">
               Unable to load dashboard
             </Title>
           </Group>
-          <Text c="#ffdfe2">{error || 'No data available'}</Text>
+          <Text className="error-panel-text">{error || 'No data available'}</Text>
         </Paper>
         {backendOffline ? (
-          <Paper withBorder radius="lg" p="md" style={{ borderColor: '#3f4d58', background: 'rgba(11, 24, 32, 0.72)' }}>
+          <Paper withBorder radius="lg" p="md" className="error-hint">
             <Group gap={8} mb={8}>
               <ThemeIcon size="md" radius="xl" color="graphite" variant="light">
                 <IconTerminal2 size={14} />
@@ -189,7 +185,9 @@ export function Dashboard() {
               </Text>
               <Text fw={700}>40 / 35 / 25</Text>
             </div>
-            <IconSparkles size={22} color="#35704c" />
+            <ThemeIcon size="lg" radius="xl" color="eco" variant="light">
+              <IconSparkles size={16} />
+            </ThemeIcon>
           </Group>
         </Paper>
       </SimpleGrid>
