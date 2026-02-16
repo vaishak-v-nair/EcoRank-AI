@@ -15,9 +15,14 @@ function asAppError(error) {
   }
 
   const dbUnavailableCodes = new Set([
+    'ENOTFOUND',
     'ECONNREFUSED',
     'PROTOCOL_CONNECTION_LOST',
     'ER_ACCESS_DENIED_ERROR',
+    'ER_DBACCESS_DENIED_ERROR',
+    'ER_BAD_DB_ERROR',
+    'ER_NO_SUCH_TABLE',
+    'ER_NOT_SUPPORTED_AUTH_MODE',
     'ETIMEDOUT'
   ]);
 

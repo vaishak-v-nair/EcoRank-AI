@@ -13,8 +13,8 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
       padding="md"
       styles={{
         header: {
-          background: 'rgba(255, 253, 248, 0.9)',
-          borderBottom: '1px solid #dce7e2',
+          background: 'var(--shell-header-bg)',
+          borderBottom: '1px solid var(--shell-header-line)',
           backdropFilter: 'blur(8px)'
         },
         main: {

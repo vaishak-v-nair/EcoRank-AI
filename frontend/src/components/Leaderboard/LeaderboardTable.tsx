@@ -3,7 +3,7 @@ import {
   Badge,
   Group,
   Paper,
-  RingProgress,
+  Progress,
   ScrollArea,
   Table,
   Text,
@@ -31,12 +31,17 @@ interface HeaderCell {
 const HEADERS: HeaderCell[] = [
   { label: 'Rank', field: 'rank_position' },
   { label: 'Candidate', field: 'full_name' },
+  { label: 'Avg Score', field: 'overall_score' },
   { label: 'Experience', field: 'years_experience' },
-  { label: 'Overall', field: 'overall_score' },
-  { label: 'Crisis', field: 'crisis_score' },
-  { label: 'Sustainability', field: 'sustainability_score' },
-  { label: 'Motivation', field: 'motivation_score' }
+  { label: 'Performance', field: 'overall_score' }
 ];
+
+function topBadgeVariant(rank: number) {
+  if (rank === 1) return { color: 'yellow', label: '1' };
+  if (rank === 2) return { color: 'gray', label: '2' };
+  if (rank === 3) return { color: 'grape', label: '3' };
+  return { color: 'eco', label: String(rank) };
+}
 
 function SortHeader({
   label,
@@ -57,7 +62,7 @@ function SortHeader({
   return (
     <UnstyledButton onClick={() => onSort(field)}>
       <Group gap={4} wrap="nowrap">
-        <Text fw={600} size="sm">
+        <Text fw={700} size="sm">
           {label}
         </Text>
         {isActive ? <Icon size={14} /> : null}
@@ -71,7 +76,7 @@ export function LeaderboardTable({ entries, onRowClick }: LeaderboardTableProps)
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
   const sortedRows = useMemo(
-    () => sortLeaderboard(entries, sortField, sortDirection),
+    () => sortLeaderboard(entries, sortField, sortDirection).slice(0, 10),
     [entries, sortField, sortDirection]
   );
 
@@ -82,28 +87,20 @@ export function LeaderboardTable({ entries, onRowClick }: LeaderboardTableProps)
   };
 
   return (
-    <Paper
-      withBorder
-      radius="lg"
-      p="md"
-      style={{
-        borderColor: '#dbe7e1',
-        boxShadow: '0 10px 28px rgba(18, 50, 40, 0.08)'
-      }}
-    >
+    <Paper withBorder radius="lg" p="md" className="hover-card surface-panel">
       <Group justify="space-between" mb="sm">
-        <Text fw={700}>Top 10 Leaderboard</Text>
-        <Badge variant="light" color="forest">
-          {entries.length} candidates
+        <Text fw={800}>Top 10 Candidate Leaderboard</Text>
+        <Badge variant="light" color="eco">
+          Sortable
         </Badge>
       </Group>
 
       <ScrollArea>
-        <Table highlightOnHover verticalSpacing="sm" horizontalSpacing="sm" miw={760}>
+        <Table highlightOnHover verticalSpacing="sm" horizontalSpacing="sm" miw={860}>
           <Table.Thead>
             <Table.Tr>
               {HEADERS.map((header) => (
-                <Table.Th key={header.field}>
+                <Table.Th key={header.label}>
                   <SortHeader
                     label={header.label}
                     field={header.field}
@@ -116,45 +113,58 @@ export function LeaderboardTable({ entries, onRowClick }: LeaderboardTableProps)
             </Table.Tr>
           </Table.Thead>
 
-          <Table.Tbody>
-            {sortedRows.slice(0, 10).map((row) => (
-              <Table.Tr
-                key={row.candidate_id}
-                style={{ cursor: onRowClick ? 'pointer' : 'default' }}
-                onClick={() => onRowClick?.(row.candidate_id)}
-              >
-                <Table.Td>
-                  <Badge color="forest" variant="filled">
-                    #{row.rank_position}
-                  </Badge>
-                </Table.Td>
-                <Table.Td>
-                  <Text fw={600}>{row.full_name}</Text>
-                  <Text size="xs" c="dimmed">
-                    {row.location_city}, {row.location_state}
-                  </Text>
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm">{row.years_experience.toFixed(1)} yrs</Text>
-                  <Text size="xs" c="dimmed">
-                    {row.current_role}
-                  </Text>
-                </Table.Td>
-                <Table.Td>
-                  <Group gap={8}>
-                    <RingProgress
-                      size={28}
-                      thickness={4}
-                      sections={[{ value: row.overall_score, color: row.overall_score >= 85 ? 'forest.7' : 'copper.6' }]}
-                    />
-                    <Text fw={700}>{row.overall_score.toFixed(1)}</Text>
-                  </Group>
-                </Table.Td>
-                <Table.Td>{row.crisis_score}</Table.Td>
-                <Table.Td>{row.sustainability_score}</Table.Td>
-                <Table.Td>{row.motivation_score}</Table.Td>
-              </Table.Tr>
-            ))}
+          <Table.Tbody key={`${sortField}-${sortDirection}`} className="sort-animate">
+            {sortedRows.map((row) => {
+              const top = row.rank_position <= 3;
+              const rankBadge = topBadgeVariant(row.rank_position);
+
+              return (
+                <Table.Tr
+                  key={row.candidate_id}
+                  style={{
+                    cursor: onRowClick ? 'pointer' : 'default',
+                    background: top ? 'var(--row-top-bg)' : undefined,
+                    transition: 'background-color 180ms ease'
+                  }}
+                  onClick={() => onRowClick?.(row.candidate_id)}
+                >
+                  <Table.Td>
+                    <Badge color={rankBadge.color} variant="filled" radius="xl">
+                      #{rankBadge.label}
+                    </Badge>
+                  </Table.Td>
+
+                  <Table.Td>
+                    <Text fw={700}>{row.full_name}</Text>
+                    <Text size="xs" c="dimmed">
+                      {row.current_role}
+                    </Text>
+                  </Table.Td>
+
+                  <Table.Td>
+                    <Text fw={800}>{row.overall_score.toFixed(1)}</Text>
+                  </Table.Td>
+
+                  <Table.Td>
+                    <Text>{row.years_experience.toFixed(1)} yrs</Text>
+                  </Table.Td>
+
+                  <Table.Td>
+                    <Group gap={10} wrap="nowrap">
+                      <Progress
+                        value={row.overall_score}
+                        color={row.overall_score >= 85 ? 'eco' : row.overall_score >= 70 ? 'blue' : 'orange'}
+                        radius="xl"
+                        style={{ width: 160 }}
+                      />
+                      <Text size="xs" c="dimmed">
+                        {row.overall_score >= 85 ? 'High' : row.overall_score >= 70 ? 'Strong' : 'Moderate'}
+                      </Text>
+                    </Group>
+                  </Table.Td>
+                </Table.Tr>
+              );
+            })}
           </Table.Tbody>
         </Table>
       </ScrollArea>

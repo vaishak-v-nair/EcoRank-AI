@@ -1,36 +1,36 @@
 import { createTheme } from '@mantine/core';
 
 export const theme = createTheme({
-  fontFamily: 'Manrope, "Segoe UI", sans-serif',
+  fontFamily: '"Plus Jakarta Sans", "Segoe UI", sans-serif',
   headings: {
-    fontFamily: '"DM Serif Display", Georgia, serif',
-    fontWeight: '400'
+    fontFamily: '"IBM Plex Sans", "Segoe UI", sans-serif',
+    fontWeight: '700'
   },
-  primaryColor: 'forest',
+  primaryColor: 'eco',
   colors: {
-    forest: [
-      '#e8f7f0',
-      '#d4eee1',
-      '#a7dcc2',
-      '#79caa3',
-      '#55bb8a',
-      '#3aa974',
-      '#2d9a66',
-      '#1f7a50',
-      '#145b3b',
-      '#093c26'
+    eco: [
+      '#ebf5ef',
+      '#d8e9df',
+      '#b2d3be',
+      '#89bc9b',
+      '#68a77f',
+      '#539b6f',
+      '#46895f',
+      '#35704c',
+      '#28593c',
+      '#183928'
     ],
-    copper: [
-      '#fff4ea',
-      '#fee6d0',
-      '#fdcea1',
-      '#fcb56f',
-      '#fb9f46',
-      '#fa912d',
-      '#e57e1d',
-      '#b46313',
-      '#84480d',
-      '#542c06'
+    graphite: [
+      '#f2f4f6',
+      '#e4e8ec',
+      '#c9d0d8',
+      '#adb8c4',
+      '#94a3b3',
+      '#8394a7',
+      '#74869a',
+      '#5f6f82',
+      '#4e5b6b',
+      '#303843'
     ]
   },
   radius: {
@@ -42,6 +42,11 @@ export const theme = createTheme({
     Button: {
       defaultProps: {
         radius: 'xl'
+      }
+    },
+    Paper: {
+      defaultProps: {
+        radius: 'lg'
       }
     }
   }

@@ -7,7 +7,6 @@ import {
   Loader,
   Paper,
   Progress,
-  SegmentedControl,
   SimpleGrid,
   Stack,
   Table,
@@ -82,7 +81,7 @@ export function CandidateDetail() {
           Back
         </Button>
         <Group>
-          <Badge color="teal" variant="light">
+          <Badge color="eco" variant="light">
             {data.evaluations.length} evaluations
           </Badge>
           <Button
@@ -104,10 +103,10 @@ export function CandidateDetail() {
       <CandidateCard candidate={data.candidate} onOpenProfile={() => undefined} />
 
       {latest ? (
-        <Paper withBorder radius="lg" p="md" style={{ borderColor: '#dbe7e1', background: 'rgba(255,255,255,0.95)' }}>
+        <Paper withBorder radius="lg" p="md" className="surface-panel">
           <Group justify="space-between" mb="sm">
             <Title order={4}>Latest Score Breakdown</Title>
-            <Badge color="forest" variant="light">
+            <Badge color="eco" variant="light">
               v{latest.evaluator_version}
             </Badge>
           </Group>
@@ -115,32 +114,32 @@ export function CandidateDetail() {
             <Stack gap={6}>
               <Group justify="space-between">
                 <Group gap={6}>
-                  <ThemeIcon color="forest" variant="light"><IconShieldCheck size={14} /></ThemeIcon>
+                  <ThemeIcon color="eco" variant="light"><IconShieldCheck size={14} /></ThemeIcon>
                   <Text size="sm">Crisis</Text>
                 </Group>
                 <Text fw={700}>{latest.crisis_score}</Text>
               </Group>
-              <Progress value={latest.crisis_score} color="forest" radius="xl" />
+              <Progress value={latest.crisis_score} color="eco" radius="xl" />
             </Stack>
             <Stack gap={6}>
               <Group justify="space-between">
                 <Group gap={6}>
-                  <ThemeIcon color="forest" variant="light"><IconLeaf size={14} /></ThemeIcon>
+                  <ThemeIcon color="eco" variant="light"><IconLeaf size={14} /></ThemeIcon>
                   <Text size="sm">Sustainability</Text>
                 </Group>
                 <Text fw={700}>{latest.sustainability_score}</Text>
               </Group>
-              <Progress value={latest.sustainability_score} color="forest" radius="xl" />
+              <Progress value={latest.sustainability_score} color="eco" radius="xl" />
             </Stack>
             <Stack gap={6}>
               <Group justify="space-between">
                 <Group gap={6}>
-                  <ThemeIcon color="forest" variant="light"><IconHeartHandshake size={14} /></ThemeIcon>
+                  <ThemeIcon color="eco" variant="light"><IconHeartHandshake size={14} /></ThemeIcon>
                   <Text size="sm">Motivation</Text>
                 </Group>
                 <Text fw={700}>{latest.motivation_score}</Text>
               </Group>
-              <Progress value={latest.motivation_score} color="forest" radius="xl" />
+              <Progress value={latest.motivation_score} color="eco" radius="xl" />
             </Stack>
           </SimpleGrid>
         </Paper>
@@ -150,10 +149,7 @@ export function CandidateDetail() {
         withBorder
         radius="lg"
         p="md"
-        style={{
-          borderColor: '#dbe7e1',
-          background: 'rgba(255, 255, 255, 0.93)'
-        }}
+        className="surface-panel-soft"
       >
         <Tabs defaultValue="table" variant="outline" radius="md">
           <Tabs.List>
@@ -196,9 +192,9 @@ export function CandidateDetail() {
                 <Timeline.Item key={evaluation.id} title={`Overall ${evaluation.overall_score.toFixed(1)}`}>
                   <Text size="sm" c="dimmed">{new Date(evaluation.evaluated_at).toLocaleString()}</Text>
                   <Group gap={8} mt={6}>
-                    <Badge color="forest" variant="light">C {evaluation.crisis_score}</Badge>
-                    <Badge color="forest" variant="light">S {evaluation.sustainability_score}</Badge>
-                    <Badge color="forest" variant="light">M {evaluation.motivation_score}</Badge>
+                    <Badge color="eco" variant="light">C {evaluation.crisis_score}</Badge>
+                    <Badge color="eco" variant="light">S {evaluation.sustainability_score}</Badge>
+                    <Badge color="eco" variant="light">M {evaluation.motivation_score}</Badge>
                   </Group>
                 </Timeline.Item>
               ))}
@@ -211,10 +207,7 @@ export function CandidateDetail() {
         withBorder
         radius="lg"
         p="md"
-        style={{
-          borderColor: '#dbe7e1',
-          background: 'rgba(255, 255, 255, 0.93)'
-        }}
+        className="surface-panel-soft"
       >
         <Title order={4} mb="sm">
           Latest Justification

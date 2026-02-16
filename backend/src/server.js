@@ -9,6 +9,7 @@ const routes = require('./routes/candidateRoutes');
 
 const app = express();
 const port = Number(process.env.PORT || 4000);
+const mockFallbackEnabled = process.env.USE_MOCK_FALLBACK !== 'false';
 
 app.disable('x-powered-by');
 app.use(helmet());
@@ -20,12 +21,14 @@ app.use(requestLogger);
 
 app.get('/health', async (_req, res) => {
   const db = await pingDatabase();
-  const healthy = db.status === 'up';
+  const healthy = db.status === 'up' || mockFallbackEnabled;
+  const status = db.status === 'up' ? 'ok' : healthy ? 'degraded' : 'down';
 
   res.status(healthy ? 200 : 503).json({
-    status: healthy ? 'ok' : 'degraded',
+    status,
     service: 'recycling-manager-selection-backend',
-    database: db
+    database: db,
+    fallbackMode: mockFallbackEnabled ? 'mock' : 'disabled'
   });
 });
 

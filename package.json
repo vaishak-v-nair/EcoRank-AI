@@ -7,10 +7,14 @@
     "frontend"
   ],
   "scripts": {
+    "dev": "concurrently -k -n backend,frontend -c blue,green \"npm run dev:backend\" \"npm run dev:frontend\"",
     "install:all": "npm install --workspaces",
     "dev:backend": "npm run dev --workspace backend",
     "dev:frontend": "npm run dev --workspace frontend",
     "build:frontend": "npm run build --workspace frontend",
     "seed:generate": "npm run generate:seed --workspace backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }

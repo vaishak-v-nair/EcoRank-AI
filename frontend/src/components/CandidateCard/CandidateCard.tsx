@@ -1,24 +1,36 @@
-import { useState } from 'react';
-import { Badge, Button, Card, Divider, Group, Progress, Stack, Text } from '@mantine/core';
-import { IconMapPin, IconShare, IconUserSearch } from '@tabler/icons-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Badge, Button, Card, Group, Progress, Stack, Text } from '@mantine/core';
+import { IconShare, IconUserSearch } from '@tabler/icons-react';
 import type { Candidate } from '../../types/candidate.types';
-import { scoreColor, scoreLabel } from '../../utils/scoreHelpers';
-import { candidateCardStyles } from './candidateCard.styles';
 
 interface CandidateCardProps {
   candidate: Candidate;
   onOpenProfile?: (candidateId: number) => void;
 }
 
+function scoreColor(score: number): 'eco' | 'blue' | 'orange' {
+  if (score >= 85) return 'eco';
+  if (score >= 70) return 'blue';
+  return 'orange';
+}
+
 export function CandidateCard({ candidate, onOpenProfile }: CandidateCardProps) {
   const [copied, setCopied] = useState(false);
-  const latestScore = candidate.latest_evaluation?.overall_score ?? null;
+  const [animateIn, setAnimateIn] = useState(false);
+  const evalData = candidate.latest_evaluation;
+
+  useEffect(() => {
+    const timer = setTimeout(() => setAnimateIn(true), 80);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const skills = useMemo(
+    () => (candidate.skills_json || []).slice(0, 5).map((skill) => skill.name),
+    [candidate.skills_json]
+  );
 
   const handleShare = async () => {
-    if (!navigator.clipboard) {
-      return;
-    }
-
+    if (!navigator.clipboard) return;
     const detailUrl = `${window.location.origin}/candidate/${candidate.id}`;
     await navigator.clipboard.writeText(detailUrl);
     setCopied(true);
@@ -30,85 +42,99 @@ export function CandidateCard({ candidate, onOpenProfile }: CandidateCardProps) 
       withBorder
       radius="lg"
       p="md"
-      style={{
-        ...candidateCardStyles.card,
-        background: 'linear-gradient(180deg, rgba(255,255,255,0.98), rgba(249,252,250,0.92))',
-        borderColor: '#dbe7e1',
-        boxShadow: '0 8px 24px rgba(20, 91, 59, 0.08)'
-      }}
+      className="hover-card surface-panel"
     >
-      <Stack gap="xs">
+      <Stack gap="sm">
         <Group justify="space-between" align="start">
           <div>
-            <Text fw={700}>{candidate.full_name}</Text>
+            <Text fw={800}>{candidate.full_name}</Text>
             <Text size="sm" c="dimmed">
               {candidate.current_role}
             </Text>
           </div>
-          {candidate.latest_evaluation?.rank_position ? (
-            <Badge color="indigo" variant="light">
-              Rank #{candidate.latest_evaluation.rank_position}
+          {evalData?.rank_position ? (
+            <Badge color="eco" variant="filled">
+              Rank #{evalData.rank_position}
             </Badge>
           ) : null}
         </Group>
 
         <Group gap={8}>
-          <Badge color="gray" variant="outline">
-            {candidate.years_experience.toFixed(1)} yrs
+          <Badge variant="light" color="graphite">
+            {candidate.years_experience.toFixed(1)} yrs exp
           </Badge>
-          <Badge color="gray" variant="outline">
-            {candidate.highest_education}
-          </Badge>
-          <Badge color="gray" variant="outline">
-            <Group gap={4}>
-              <IconMapPin size={12} />
-              {candidate.location_state}
-            </Group>
+          <Badge variant="light" color="graphite">
+            {candidate.location_state}
           </Badge>
         </Group>
 
-        <Text size="sm" style={candidateCardStyles.summary}>
-          {candidate.profile_summary}
-        </Text>
+        <Group gap={6}>
+          {skills.map((skill) => (
+            <Badge key={skill} variant="outline" color="eco" radius="sm">
+              {skill}
+            </Badge>
+          ))}
+        </Group>
 
-        {latestScore !== null ? (
-          <>
+        {evalData ? (
+          <Stack gap={6}>
             <Group justify="space-between">
-              <Text size="sm" fw={700}>
-                Overall Score: {latestScore.toFixed(1)}
+              <Text size="xs" c="dimmed">
+                Crisis Management
               </Text>
-              <Badge color={scoreColor(latestScore)}>{scoreLabel(latestScore)}</Badge>
+              <Text size="xs" fw={700}>
+                {evalData.crisis_score}
+              </Text>
             </Group>
-            <Progress value={latestScore} color={scoreColor(latestScore)} radius="xl" size="sm" />
-          </>
+            <Progress value={animateIn ? evalData.crisis_score : 0} color={scoreColor(evalData.crisis_score)} radius="xl" />
+
+            <Group justify="space-between">
+              <Text size="xs" c="dimmed">
+                Sustainability Knowledge
+              </Text>
+              <Text size="xs" fw={700}>
+                {evalData.sustainability_score}
+              </Text>
+            </Group>
+            <Progress value={animateIn ? evalData.sustainability_score : 0} color={scoreColor(evalData.sustainability_score)} radius="xl" />
+
+            <Group justify="space-between">
+              <Text size="xs" c="dimmed">
+                Team Motivation
+              </Text>
+              <Text size="xs" fw={700}>
+                {evalData.motivation_score}
+              </Text>
+            </Group>
+            <Progress value={animateIn ? evalData.motivation_score : 0} color={scoreColor(evalData.motivation_score)} radius="xl" />
+
+            <Group justify="space-between" mt={4}>
+              <Text fw={700}>Composite Score</Text>
+              <Badge color={scoreColor(evalData.overall_score)} variant="filled">
+                {evalData.overall_score.toFixed(1)}
+              </Badge>
+            </Group>
+          </Stack>
         ) : (
-          <Badge color="yellow" variant="light">
+          <Badge color="orange" variant="light">
             Awaiting Evaluation
           </Badge>
         )}
+
+        <Group mt="sm">
+          <Button variant="default" leftSection={<IconUserSearch size={16} />} onClick={() => onOpenProfile?.(candidate.id)}>
+            View
+          </Button>
+          <Button
+            variant="filled"
+            color={copied ? 'eco' : 'graphite'}
+            leftSection={<IconShare size={16} />}
+            onClick={() => { void handleShare(); }}
+          >
+            {copied ? 'Shared' : 'Share Candidate'}
+          </Button>
+        </Group>
       </Stack>
-
-      <Divider my="md" />
-
-      <Group mt="md" style={candidateCardStyles.footer}>
-        <Button
-          variant="filled"
-          leftSection={<IconUserSearch size={16} />}
-          onClick={() => onOpenProfile?.(candidate.id)}
-        >
-          Open Profile
-        </Button>
-        <Button
-          variant="light"
-          color={copied ? 'teal' : 'gray'}
-          leftSection={<IconShare size={16} />}
-          onClick={() => {
-            void handleShare();
-          }}
-        >
-          {copied ? 'Shared' : 'Share'}
-        </Button>
-      </Group>
     </Card>
   );
 }

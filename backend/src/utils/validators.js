@@ -9,7 +9,7 @@ const LEADERBOARD_SORT_FIELDS = new Set([
   'yearsExperience'
 ]);
 
-const PROVIDERS = new Set(['mock', 'openai']);
+const PROVIDERS = new Set(['mock', 'openai', 'openrouter']);
 
 function parsePositiveInt(value, {
   fieldName,

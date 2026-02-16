@@ -14,7 +14,16 @@ const { AppError } = require('../utils/appError');
 const USE_MOCK_FALLBACK = process.env.USE_MOCK_FALLBACK !== 'false';
 
 function isDatabaseUnavailableError(error) {
-  return error?.code === 'DATABASE_UNAVAILABLE' || error?.statusCode === 503;
+  if (error?.code === 'DATABASE_UNAVAILABLE' || error?.statusCode === 503) {
+    return true;
+  }
+
+  if (typeof error?.code === 'string' && error.code.startsWith('ER_')) {
+    return true;
+  }
+
+  const message = String(error?.message || '').toLowerCase();
+  return message.includes('database') || message.includes('table') || message.includes('mysql');
 }
 
 async function withDbFallback(primaryFn, fallbackFn) {

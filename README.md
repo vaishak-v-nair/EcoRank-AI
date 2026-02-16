@@ -89,6 +89,14 @@ recycling-manager-selection/
 3. Open:
    - `http://localhost:5173`
 
+## Quick Start (Recommended)
+
+From the repository root, run both backend and frontend together:
+
+- `npm run dev`
+
+This uses a shared process runner so both services restart together during development.
+
 ## Key Backend Endpoints
 
 - `GET /api/dashboard`

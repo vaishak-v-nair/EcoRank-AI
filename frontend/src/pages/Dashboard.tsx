@@ -6,6 +6,8 @@ import {
   Divider,
   Grid,
   Group,
+  Code,
+  List,
   Loader,
   Paper,
   SimpleGrid,
@@ -15,7 +17,15 @@ import {
   ThemeIcon,
   Title
 } from '@mantine/core';
-import { IconBolt, IconRefresh, IconRosetteDiscountCheck, IconSparkles, IconTargetArrow } from '@tabler/icons-react';
+import {
+  IconBolt,
+  IconRefresh,
+  IconRosetteDiscountCheck,
+  IconSparkles,
+  IconTargetArrow,
+  IconTerminal2,
+  IconPlugConnectedX
+} from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { CandidateCard } from '../components/CandidateCard/CandidateCard';
 import { LeaderboardTable } from '../components/Leaderboard/LeaderboardTable';
@@ -45,12 +55,50 @@ export function Dashboard() {
   }
 
   if (error || !data) {
+    const backendOffline = (error || '').toLowerCase().includes('cannot reach backend api');
     return (
-      <Stack>
-        <Alert color="red" title="Unable to load dashboard" radius="lg">
-          {error || 'No data available'}
-        </Alert>
-        <Button onClick={() => void refresh()} variant="outline" leftSection={<IconRefresh size={16} />}>
+      <Stack gap="md">
+        <Paper
+          withBorder
+          radius="lg"
+          p="lg"
+          style={{
+            borderColor: '#4c2b2f',
+            background:
+              'linear-gradient(135deg, rgba(129, 39, 56, 0.28), rgba(33, 18, 34, 0.45)), rgba(24, 20, 26, 0.9)'
+          }}
+        >
+          <Group gap="sm" mb="xs">
+            <ThemeIcon radius="xl" size="lg" color="red" variant="filled">
+              <IconPlugConnectedX size={18} />
+            </ThemeIcon>
+            <Title order={3} c="#ffd4d8">
+              Unable to load dashboard
+            </Title>
+          </Group>
+          <Text c="#ffdfe2">{error || 'No data available'}</Text>
+        </Paper>
+        {backendOffline ? (
+          <Paper withBorder radius="lg" p="md" style={{ borderColor: '#3f4d58', background: 'rgba(11, 24, 32, 0.72)' }}>
+            <Group gap={8} mb={8}>
+              <ThemeIcon size="md" radius="xl" color="graphite" variant="light">
+                <IconTerminal2 size={14} />
+              </ThemeIcon>
+              <Text fw={700}>Local recovery steps</Text>
+            </Group>
+            <List spacing={6} size="sm">
+              <List.Item>Start full stack from repo root: <Code>npm run dev</Code></List.Item>
+              <List.Item>Or start backend only: <Code>npm run dev:backend</Code></List.Item>
+              <List.Item>Open app at <Code>http://localhost:5173</Code></List.Item>
+            </List>
+          </Paper>
+        ) : null}
+        {!backendOffline ? (
+          <Alert color="yellow" radius="lg">
+            The API is reachable but returned an unexpected error. Retry once, then check backend logs.
+          </Alert>
+        ) : null}
+        <Button onClick={() => void refresh()} variant="filled" color="eco" leftSection={<IconRefresh size={16} />}>
           Retry
         </Button>
       </Stack>
@@ -68,19 +116,15 @@ export function Dashboard() {
         withBorder
         radius="lg"
         p="lg"
-        style={{
-          borderColor: '#dbe7e1',
-          background:
-            'linear-gradient(135deg, rgba(45, 154, 102, 0.12), rgba(250, 145, 45, 0.14)), rgba(255,255,255,0.86)'
-        }}
+        className="surface-hero"
       >
         <Group justify="space-between" align="end">
           <div>
             <Group gap="xs" mb={6}>
-              <Badge color="forest" variant="filled">
+              <Badge color="eco" variant="filled">
                 EcoRank Scoring Console
               </Badge>
-              <Badge color="copper" variant="light">
+              <Badge color="graphite" variant="light">
                 Updated Live
               </Badge>
             </Group>
@@ -89,7 +133,7 @@ export function Dashboard() {
               Rank leaders across crisis response, sustainability fluency, and team motivation impact.
             </Text>
           </div>
-          <Button variant="filled" color="forest" leftSection={<IconRefresh size={16} />} onClick={() => void refresh()}>
+          <Button variant="filled" color="eco" leftSection={<IconRefresh size={16} />} onClick={() => void refresh()}>
             Refresh
           </Button>
         </Group>
@@ -104,7 +148,7 @@ export function Dashboard() {
               </Text>
               <Title order={3}>{averageTop10.toFixed(1)}</Title>
             </div>
-            <ThemeIcon size="lg" radius="xl" color="forest" variant="light">
+            <ThemeIcon size="lg" radius="xl" color="eco" variant="light">
               <IconTargetArrow size={18} />
             </ThemeIcon>
           </Group>
@@ -117,7 +161,7 @@ export function Dashboard() {
               </Text>
               <Title order={3}>{eliteRate.toFixed(1)}%</Title>
             </div>
-            <ThemeIcon size="lg" radius="xl" color="copper" variant="light">
+            <ThemeIcon size="lg" radius="xl" color="graphite" variant="light">
               <IconRosetteDiscountCheck size={18} />
             </ThemeIcon>
           </Group>
@@ -132,7 +176,7 @@ export function Dashboard() {
                 {evaluatedCount}/{data.candidates.length}
               </Title>
             </div>
-            <ThemeIcon size="lg" radius="xl" color="forest" variant="light">
+            <ThemeIcon size="lg" radius="xl" color="eco" variant="light">
               <IconBolt size={18} />
             </ThemeIcon>
           </Group>
@@ -145,7 +189,7 @@ export function Dashboard() {
               </Text>
               <Text fw={700}>40 / 35 / 25</Text>
             </div>
-            <IconSparkles size={22} color="#1f7a50" />
+            <IconSparkles size={22} color="#35704c" />
           </Group>
         </Paper>
       </SimpleGrid>
@@ -159,11 +203,11 @@ export function Dashboard() {
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 4 }}>
           <Stack>
-            <SkillHeatmap cells={data.heatmap} />
-            <Card withBorder radius="lg" p="md">
+            <SkillHeatmap entries={data.leaderboard} />
+            <Card withBorder radius="lg" p="md" className="surface-panel-soft">
               <Group justify="space-between">
                 <Text fw={700}>Scoring Weights</Text>
-                <Badge color="forest" variant="light">
+                <Badge color="eco" variant="light">
                   AI rubric
                 </Badge>
               </Group>
@@ -171,15 +215,15 @@ export function Dashboard() {
               <Stack gap={8}>
                 <Group justify="space-between">
                   <Text size="sm">Crisis Management</Text>
-                  <Badge color="forest">40%</Badge>
+                  <Badge color="eco">40%</Badge>
                 </Group>
                 <Group justify="space-between">
                   <Text size="sm">Sustainability</Text>
-                  <Badge color="forest">35%</Badge>
+                  <Badge color="eco">35%</Badge>
                 </Group>
                 <Group justify="space-between">
                   <Text size="sm">Team Motivation</Text>
-                  <Badge color="forest">25%</Badge>
+                  <Badge color="eco">25%</Badge>
                 </Group>
               </Stack>
             </Card>
@@ -190,7 +234,7 @@ export function Dashboard() {
       <Stack gap="sm">
         <Group justify="space-between" align="center">
           <Title order={3}>Candidate Cards</Title>
-          <Badge variant="light" color="forest">
+          <Badge variant="light" color="eco">
             Click any card for deep profile
           </Badge>
         </Group>

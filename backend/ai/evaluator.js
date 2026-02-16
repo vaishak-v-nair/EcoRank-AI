@@ -80,12 +80,40 @@ async function loadPromptBundle() {
   };
 }
 
-async function callOpenAI(candidate, promptBundle) {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error('OPENAI_API_KEY is not set');
+function joinUrl(baseUrl, pathName) {
+  return `${String(baseUrl || '').replace(/\/+$/, '')}${pathName}`;
+}
+
+function resolveProviderConfig(provider) {
+  const apiKey = process.env.OPENAI_API_KEY || process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY or OPENROUTER_API_KEY is not set');
   }
 
-  const model = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
+  if (provider === 'openrouter') {
+    return {
+      provider,
+      apiKey,
+      baseUrl: process.env.OPENROUTER_BASE_URL || process.env.OPENAI_BASE_URL || 'https://openrouter.ai/api/v1',
+      model: process.env.OPENAI_MODEL || 'openai/gpt-4o-mini',
+      extraHeaders: {
+        ...(process.env.OPENROUTER_SITE_URL ? { 'HTTP-Referer': process.env.OPENROUTER_SITE_URL } : {}),
+        'X-Title': process.env.OPENROUTER_APP_NAME || 'recycling-manager-selection'
+      }
+    };
+  }
+
+  return {
+    provider: 'openai',
+    apiKey,
+    baseUrl: process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
+    model: process.env.OPENAI_MODEL || 'gpt-4.1-mini',
+    extraHeaders: {}
+  };
+}
+
+async function callOpenAICompatible(candidate, promptBundle, requestedProvider) {
+  const config = resolveProviderConfig(requestedProvider);
   const prompt = [
     'You are evaluating a recycling operations manager candidate. Return JSON only.',
     'Use these three prompts as rubric context:',
@@ -116,14 +144,15 @@ async function callOpenAI(candidate, promptBundle) {
     })
   ].join('\n');
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const response = await fetch(joinUrl(config.baseUrl, '/chat/completions'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+      Authorization: `Bearer ${config.apiKey}`,
+      ...config.extraHeaders
     },
     body: JSON.stringify({
-      model,
+      model: config.model,
       temperature: 0.2,
       messages: [
         {
@@ -140,7 +169,7 @@ async function callOpenAI(candidate, promptBundle) {
 
   if (!response.ok) {
     const details = await response.text();
-    throw new Error(`OpenAI request failed (${response.status}): ${details}`);
+    throw new Error(`${config.provider} request failed (${response.status}): ${details}`);
   }
 
   const data = await response.json();
@@ -151,16 +180,16 @@ async function callOpenAI(candidate, promptBundle) {
     throw new Error('Unable to parse model output as JSON');
   }
 
-  return normalizeModelResponse(parsed, 'openai', model);
+  return normalizeModelResponse(parsed, config.provider, config.model);
 }
 
 async function evaluateCandidate(candidate, options = {}) {
   const requestedProvider = options.provider || process.env.AI_PROVIDER || 'mock';
   const promptBundle = await loadPromptBundle();
 
-  if (requestedProvider === 'openai') {
+  if (requestedProvider === 'openai' || requestedProvider === 'openrouter') {
     try {
-      return await callOpenAI(candidate, promptBundle);
+      return await callOpenAICompatible(candidate, promptBundle, requestedProvider);
     } catch (error) {
       const fallback = runMockEvaluation(candidate);
       return normalizeModelResponse(

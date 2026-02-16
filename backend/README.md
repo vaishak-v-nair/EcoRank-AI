@@ -49,11 +49,12 @@ Node.js + Express backend with MySQL persistence, deterministic Faker seed gener
 - `GET /api/candidates/:id`
 - `GET /api/candidates/:id/profile`
 - `GET /api/candidates/:id/evaluations?limit=10`
-- `POST /api/candidates/:id/evaluate` with body `{ "provider": "mock" | "openai", "evaluatorVersion": "v1" }`
+- `POST /api/candidates/:id/evaluate` with body `{ "provider": "mock" | "openai" | "openrouter", "evaluatorVersion": "v1" }`
 
 ## Notes
 - Ranking is calculated from `vw_candidate_rankings` using each candidate's latest evaluation.
 - `rankings` table is auto-updated by `sp_refresh_rankings` via evaluation insert/update/delete triggers.
 - Score constraints are enforced by both schema checks and triggers.
 - `AI_PROVIDER=mock` is the default for deterministic local testing.
+- For OpenRouter, set `AI_PROVIDER=openrouter` and provide `OPENAI_API_KEY` (or `OPENROUTER_API_KEY`).
 - `/health` includes database reachability and returns `503` when DB is down.
