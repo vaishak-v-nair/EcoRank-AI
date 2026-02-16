@@ -1,99 +1,269 @@
-# AI Evaluation Prompts
+# 📄 AI_Prompts.md
 
-This document mirrors the production prompt assets used by `backend/ai/evaluator.js`.
+**EcoRank AI – Candidate Evaluation Prompts**
 
-## 1. Crisis Management Prompt
+This document defines the structured evaluation prompts used to score candidates for the Recycling Production Line Manager role.
 
-### Goal
-Score a candidate's ability to stabilize operations during incidents such as contamination spikes, facility downtime, and safety events.
+Each evaluation:
 
-### Rubric (0-100)
-- 0-20: No evidence of crisis ownership.
-- 21-40: Limited exposure; weak response behaviors.
-- 41-60: Adequate operational response with partial leadership.
-- 61-80: Strong incident control and communication.
-- 81-100: Exceptional crisis leadership with measurable prevention outcomes.
+* Uses a clearly defined rubric
+* Enforces 0–100 scoring
+* Requires structured JSON output
+* Separates reasoning from score
+* Prevents hallucinated assumptions
 
-### Required JSON Output
-```json
+All scores are later aggregated using a weighted model:
+
+* Crisis Management: 40%
+* Sustainability Knowledge: 35%
+* Team Motivation: 25%
+
+---
+
+# 1️⃣ Crisis Management Evaluation Prompt
+
+## 🎯 Objective
+
+Assess the candidate’s ability to handle operational crises in a recycling production environment.
+
+Examples of crisis scenarios:
+
+* Equipment failure
+* Supply chain disruption
+* Contamination incidents
+* Regulatory compliance issues
+* Worker safety incidents
+
+---
+
+## 🧠 System Prompt
+
+```
+You are a senior industrial operations evaluator assessing candidates for a Recycling Production Line Manager role.
+
+Your job is to objectively evaluate crisis management capability using only the provided candidate profile.
+
+Do NOT assume information that is not explicitly stated.
+Do NOT infer personality traits.
+Only evaluate based on documented experience and skills.
+
+You must return a strictly valid JSON object with the required schema.
+Scores must be between 0 and 100.
+```
+
+---
+
+## 👤 User Prompt Template
+
+```
+Evaluate the following candidate for CRISIS MANAGEMENT capability.
+
+Candidate Profile:
+Name: {{name}}
+Years of Experience: {{experience}}
+Skills: {{skills}}
+Background Summary: {{summary}}
+
+Scoring Rubric (0–100):
+
+0–30:
+Minimal or no evidence of operational crisis handling.
+
+31–60:
+Some relevant operational exposure, but limited leadership or structured crisis response experience.
+
+61–80:
+Demonstrated hands-on crisis response, operational decision-making, and process stabilization.
+
+81–100:
+Strong leadership during high-pressure incidents, proactive risk mitigation, structured response frameworks, measurable operational recovery results.
+
+Return ONLY this JSON format:
+
 {
-  "score": 0,
-  "justification": "string",
-  "evidence": ["string", "string"],
-  "risks": ["string"],
-  "confidence": 0
+  "score": <number>,
+  "justification": "<2–4 sentence reasoning based strictly on profile>"
 }
 ```
 
-## 2. Sustainability Knowledge Prompt
+---
 
-### Goal
-Score applied sustainability capability across circular-economy strategy, diversion programs, compliance, and data-informed improvements.
+# 2️⃣ Sustainability Knowledge Evaluation Prompt
 
-### Rubric (0-100)
-- 0-20: Minimal sustainability literacy.
-- 21-40: Basic conceptual awareness.
-- 41-60: Working knowledge with moderate application.
-- 61-80: Strong applied sustainability execution.
-- 81-100: Advanced strategic capability with impact orientation.
+## 🎯 Objective
 
-### Required JSON Output
-```json
+Evaluate the candidate’s technical and regulatory understanding of sustainability in recycling operations.
+
+Areas of interest:
+
+* Waste stream optimization
+* Environmental compliance (ISO, EPA equivalents)
+* Resource recovery efficiency
+* Circular economy knowledge
+* Emissions reduction strategies
+
+---
+
+## 🧠 System Prompt
+
+```
+You are an environmental operations evaluator.
+
+Your task is to score the candidate's sustainability knowledge based strictly on documented skills and experience.
+
+Do not assume certifications unless explicitly mentioned.
+Do not fabricate regulatory familiarity.
+
+Return structured JSON only.
+Score must be between 0 and 100.
+```
+
+---
+
+## 👤 User Prompt Template
+
+```
+Evaluate the following candidate for SUSTAINABILITY KNOWLEDGE.
+
+Candidate Profile:
+Name: {{name}}
+Years of Experience: {{experience}}
+Skills: {{skills}}
+Background Summary: {{summary}}
+
+Scoring Rubric (0–100):
+
+0–30:
+Limited evidence of sustainability exposure.
+
+31–60:
+Basic familiarity with environmental standards or waste operations.
+
+61–80:
+Clear experience in recycling systems, compliance frameworks, or environmental performance metrics.
+
+81–100:
+Advanced sustainability leadership, measurable environmental improvements, regulatory expertise, or circular economy implementation.
+
+Return ONLY:
+
 {
-  "score": 0,
-  "justification": "string",
-  "evidence": ["string", "string"],
-  "knowledge_gaps": ["string"],
-  "confidence": 0
+  "score": <number>,
+  "justification": "<clear reasoning>"
 }
 ```
 
-## 3. Team Motivation Prompt
+---
 
-### Goal
-Score leadership behaviors that sustain motivation, retention, accountability, and team performance in high-pressure operations.
+# 3️⃣ Team Motivation Evaluation Prompt
 
-### Rubric (0-100)
-- 0-20: No leadership evidence.
-- 21-40: Weak people-management indicators.
-- 41-60: Adequate baseline with uneven impact.
-- 61-80: Strong coaching and morale stabilization signals.
-- 81-100: Exceptional culture-building and performance enablement.
+## 🎯 Objective
 
-### Required JSON Output
-```json
+Assess leadership and workforce motivation capability in industrial environments.
+
+Key aspects:
+
+* Team supervision
+* Conflict resolution
+* Productivity improvement
+* Shift coordination
+* Safety culture
+
+---
+
+## 🧠 System Prompt
+
+```
+You are an HR leadership evaluator.
+
+Evaluate team motivation and leadership capability using only the provided information.
+
+Avoid personality speculation.
+Score strictly based on documented supervisory experience.
+
+Return valid JSON only.
+Score range: 0–100.
+```
+
+---
+
+## 👤 User Prompt Template
+
+```
+Evaluate the following candidate for TEAM MOTIVATION capability.
+
+Candidate Profile:
+Name: {{name}}
+Years of Experience: {{experience}}
+Skills: {{skills}}
+Background Summary: {{summary}}
+
+Scoring Rubric (0–100):
+
+0–30:
+No leadership or team coordination evidence.
+
+31–60:
+Some supervisory or coordination experience.
+
+61–80:
+Demonstrated leadership in operational settings, performance improvement initiatives.
+
+81–100:
+Strong people leadership, workforce engagement strategy, measurable team productivity gains.
+
+Return ONLY:
+
 {
-  "score": 0,
-  "justification": "string",
-  "evidence": ["string", "string"],
-  "development_priorities": ["string"],
-  "confidence": 0
+  "score": <number>,
+  "justification": "<2–4 sentence evidence-based reasoning>"
 }
 ```
 
-## Unified Evaluator Output
-The backend normalizes provider responses into:
+---
 
-```json
-{
-  "provider": "mock|openai|mock-fallback",
-  "model": "string",
-  "scores": {
-    "crisisManagement": 0,
-    "sustainabilityKnowledge": 0,
-    "teamMotivation": 0
-  },
-  "overallScore": 0,
-  "justification": {
-    "crisisManagement": "string",
-    "sustainabilityKnowledge": "string",
-    "teamMotivation": "string"
-  },
-  "evidence": {
-    "crisisManagement": ["string"],
-    "sustainabilityKnowledge": ["string"],
-    "teamMotivation": ["string"]
-  },
-  "confidence": 0
-}
+# 🔒 Output Validation Rules
+
+All AI responses must:
+
+* Be valid JSON
+* Include both `score` and `justification`
+* Have score between 0–100
+* Contain no extra commentary
+* Avoid hallucinated facts
+
+If response format is invalid:
+
+* Reject and re-request
+* Or fallback to deterministic mock scoring
+
+---
+
+# ⚖️ Weighted Aggregation Logic
+
+Final score is calculated as:
+
 ```
+final_score =
+(crisis_score × 0.40) +
+(sustainability_score × 0.35) +
+(motivation_score × 0.25)
+```
+
+Scores are clamped between 0–100 before aggregation.
+
+---
+
+# 🧠 Design Philosophy
+
+These prompts are designed to:
+
+* Reduce ambiguity
+* Prevent hallucination
+* Enforce scoring consistency
+* Separate reasoning from ranking
+* Support provider abstraction (mock / OpenAI / OpenRouter)
+
+This ensures deterministic ranking behavior even with probabilistic AI outputs.
+
+---
